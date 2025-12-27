@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ポケモン図鑑</title>
+</head>
+<body>
+  <h2>詳細</h2>
+  <p>※(キョ)はキョダイマックスの姿</p>
+  <table>
+    <tr><th>ID</th><th>名前</th></tr>
+      <% let number = 0 %>
+      <% for( let row of data ) { %>
+        <tr><td><%= row.id %></td>
+        <td><a href="/po/<%= number %>"><%= row.name %></a></td></tr>
+        <% number += 1 %>
+      <% } %>
+  </table>
+  <a href="/po/create">追加</a>
+</body>
+</html>

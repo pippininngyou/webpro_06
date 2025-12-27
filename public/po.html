@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>新規登録</title>
+</head>
+<body>
+    <form action="/po" method="POST">
+        <input type="text" name="id" required>
+        <label for="id">ID:</label><br>
+        <input type="text" name="name" required>
+        <label for="name">名前:</label><br>
+        <input type="text" name="type">
+        <label for="type">タイプ:</label><br>
+        <input type="text" name="class" required>
+        <label for="class">分類:</label><br>
+        <input type="text" name="character" required>
+        <label for="character">特性:</label><br>
+        <input type="text" name="region" required>
+        <label for="region">生息地:</label><br>
+        <input type="submit" values="登録">
+    </form>
+</body>
+</html>

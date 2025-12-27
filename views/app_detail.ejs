@@ -9,14 +9,13 @@
   <table>
     <tr><th>項目</th><th>データ</th></tr>
     <tr><td>ID</td><td><%= data.id %></td></tr>
-    <tr><td>種類</td><td><%= data.kind %></td></tr>
-    <tr><td>ゲーム機名</td><td><%= data.name %></td></tr>
+    <tr><td>名前</td><td><%= data.name %></td></tr>
     <tr><td>発売日</td><td><%= data.day %></td></tr>
     <tr><td>値段</td><td><%= data.price %></td></tr>
-    <tr><td>プレイ人数</td><td><%= data.people %></td></tr>
+    <tr><td>サイズ</td><td><%= data.size %></td></tr>
   </table>
-  <a href="/nin/edit/<%= id %>">編集</a>
-  <a href="/nin/delete/<%= id %>" onclick="return confirm('本当に削除しますか？');">削除</a>
-  <a href="/nin">一覧に戻る</a>
+  <a href="/app/edit/<%= id %>">編集</a>
+  <a href="/app/delete/<%= id %>" onclick="return confirm('本当に削除しますか？');">削除</a>
+  <a href="/app">一覧に戻る</a>
 </body>
 </html>
