@@ -75,6 +75,7 @@ let nintendou = [
   { id:62,kind:"周辺機器", name:"ファミリーコンピュータ コントローラー", day:"2024年7月18日", price:"6,578円", people:""},
   { id:63,kind:"ゲーム機", name:"Nintendo Switch 2", day:"2025年6月5日", price:"49,980円", people:"8人"},
   { id:64,kind:"周辺機器", name:"Nintendo Switch 2 Proコントローラー", day:"2025年6月5日", price:"9,980円", people:""},
+  { id:65,kind:"周辺機器", name:"Nintendo Switch 2 カメラ", day:"2025年6月5日", price:"5,980円", people:""},
 ];
 
 // 一覧表示
@@ -1399,7 +1400,7 @@ let pokemon = [
 
 // 一覧表示
 app.get("/po", (req, res) => {
-  res.render('po', { data: apple });
+  res.render('po', { data: pokemon });
 });
 
 // 新規作成画面（public/po.htmlを表示）
