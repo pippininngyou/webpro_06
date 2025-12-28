@@ -278,7 +278,7 @@
     更新処理&POST&/po/update/:number&編集フォームから送信されたデータを受け取り，指定されたIDの情報を更新\\
     \hline
   \end{tabular}}
-  \label{kouzou3}
+  \label{kouzou99}
 \end{table}
 
 \subsubsection{遷移図}
@@ -357,7 +357,65 @@ node.jsはバージョン更新が早いので，使用するバージョンを�
 \subsection{分かっている不具合}
 本システムには，更新データが永続化されないという課題がある．具体的には，情報の追加や編集を完了した状態であっても，システムを再起動するとそれらの更新情報が失われ，操作前の状態に戻ってしまう問題が報告されている．
 
+\section{利用者向け}
+\subsection{概要}
+本システムは，ニンテンドーのソフト「ポケットモンスター」に登場する歴代のポケモンの情報を管理し，一覧表示，詳細表示，追加，変更，削除の5つの操作を提供するシステムである．
 
+\subsection{使用できる機能}
+この「ポケモン図鑑システム」は，ポケモンの生態情報を一元管理できる利用者参加型のWebアプリケーションであり，一覧から個別の詳細（タイプ・特性・生息地など）を閲覧できるだけでなく，新規登録や情報の修正，不要なデータの削除といったメンテナンスを直感的な操作で行えるのが最大の特徴である．
+特に，メガシンカやキョダイマックス，アローラのすがたといった特殊な形態も個別のデータとして網羅できる柔軟な設計となっており，誰でも簡単に「自分だけの詳細なデジタル図鑑」を構築・運用することが可能だ．
+
+\subsection{画面操作ガイド}
+システムを開始すると歴代ポケモン一覧表示の画面が表示される．
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su1.png}
+    \caption{ポケモンシステムの一覧表示}
+    \label{su1}
+\end{figure}
+
+この一覧表示から気になるポケモンをクリックすることで，タイプや分類，特性が含まれる「詳細表示」へと進むことができる．
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su2.png}
+    \caption{ポケモンシステムの詳細表示}
+    \label{su2}
+\end{figure}
+
+新たに情報を加えたい場合は，一覧画面にある「追加」ボタンから入力フォームを呼び出し，新しくポケモンを登録する．
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su5.png}
+    \caption{ポケモンシステムの追加ボタンの位置}
+    \label{su5}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su6.png}
+    \caption{ポケモンシステムのデータ追加}
+    \label{su6}
+\end{figure}
+
+登録済みの内容に修正が必要な際は「編集」リンクから情報を書き換え，不要になった項
+目は「削除」によってリストから取り除くことができる．
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su3.png}
+    \caption{ポケモンシステムのデータ編集}
+    \label{su3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{fig/su4.png}
+    \caption{ポケモンシステムのデータ削除}
+    \label{su4}
+\end{figure}
 
 \end{document}
 
