@@ -1,0 +1,347 @@
+\documentclass[uplatex]{jsarticle}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[dvipdfmx]{color}
+
+\usepackage[uplatex,deluxe]{otf} % UTF
+\usepackage[noalphabet]{pxchfon} % must be after otf package
+\setcounter{tocdepth}{3}
+\usepackage{float}
+\usepackage{moreverb}
+\usepackage{lscape}
+%\pagestyle{empty}
+%\usepackage{wrapfig}
+
+%\usepackage{EasyLayout}
+\usepackage{listings}
+\usepackage{ascmac}
+
+% --- 追加設定 ---
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{verbatimbox}
+\usepackage{color}
+
+\begin{document}
+
+\title{Webプログラミング データ表示のWebアプリ開発}
+\author{25G1036 河井希天}
+\date{2025年12月28日}
+\maketitle
+
+\url{https://github.com/pippininngyou/webpro_06.git}
+
+\section{開発者向け}
+
+\subsection{ニンテンドーシステム}
+\subsubsection{概要}
+本システムは，任天堂の歴代ハードウェアおよび周辺機器のデータを管理・閲覧するためのWebアプリケーションである． 
+ユーザーはWebブラウザを通じて，製品情報の一覧表示・詳細閲覧・新規登録・編集・削除を行うことができる． 開発およびデモ運用を想定し，データベースサーバーを使用せず，アプリケーションサーバーのメモリ上でデータを管理する構成となっている．
+
+\subsubsection{データ構造}
+本データ構造は，任天堂のハードウェア情報を管理するためのオブジェクト配列として実装されている．各オブジェクトは，一意の識別子であるid，製品分類を示すkind，および製品名のname を主要なキーとして構成される．
+加えて，付帯情報である発売日（day），価格（price），プレイ人数（people）については，数値計算を前提としない文字列型として定義することで，単位表記や日付フォーマットの記述における柔軟性を確保している．
+\begin{table}[H]\caption{ニンテンドーシステム データ構造}
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    キー名&型&説明\\
+    \hline
+    id&Number&通し番号\\
+    \hline
+    kind&String&種別\\
+    \hline
+    name&String&製品名\\
+    \hline
+    day&String&発売日\\
+    \hline
+    price&String&価格\\
+    \hline
+    people&String&プレイ人数\\
+    \hline
+  \end{tabular}
+  \label{kouzou1}
+\end{table}
+
+\subsubsection{ニンテンドーシステム HTTPメソッドとリソース名一覧}
+本システムでは，任天堂のハードウェア情報を閲覧する一般画面と，情報をメンテナンスするための管理画面を区別して定義している．
+登録，編集，更新といった各プロセスに対して専用のリソースパスを割り当てることで，ハードウェアデータの正確なCRUD 操作を実現している．
+
+\begin{table}[H]\caption{ニンテンドーシステム HTTPメソッドとリソース名一覧}
+  \centering
+  \resizebox{\textwidth}{!}{ 
+  \small
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    機能&メソッド&リソース名&説明\\
+    \hline
+    一覧表示&GET&/nin&一覧表示画面を表示\\
+    \hline
+    新規作成画面表示&GET&/nin/create&新規登録用の入力フォームを表示\\
+    \hline
+    詳細表示&GET&/nin/:number&指定されたIDのデータの詳細画面を表示\\
+    \hline
+    削除&GET&/nin/delete/:number&指定されたIDのデータを削除\\
+    \hline
+    新規登録処理&POST&/nin&フォームから送信されたデータを受け取り，新規データを登録\\
+    \hline
+    編集画面表示&GET&/nin/edit/:number&指定されたIDのデータを編集するためのフォームを表示\\
+    \hline
+    更新処理&POST&/nin/update/:number&編集フォームから送信されたデータを受け取り，指定されたIDの情報を更新\\
+    \hline
+  \end{tabular}}
+  \label{kouzou2}
+\end{table}
+
+\subsubsection{遷移図}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{seni1.png}
+    \caption{ニンテンドーシステムの遷移図}
+    \label{seni1}
+\end{figure}
+
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize}
+\item GET /nin  \par サーバーメモリ上のnintendou配列から全データを取得し，nin.ejsに渡してレンダリングを行う
+\item GET /nin/create  \par ユーザーが新しいハードウェア情報を入力するためのnin.htmlを返却する．
+\item POST /nin  \par フォームから送信された入力値を受け取る．システム側で新たなidを自動生成し，入力値と合わせてオブジェクト化する．これをnintendou配列の末尾に追加（push）した後，一覧画面へリダイレクトする．
+\item GET /nin/:number  \par URLパラメータ:numberを配列のインデックスとして使用し，特定の一件を抽出する．抽出したデータnin\_detail.ejsに渡して表示する．
+\item GET /nin/edit/:number \par  指定されたインデックス（:number）のデータを配列から取得し，その値を初期値として埋め込んだ状態でnin\_edit.ejsを表示する．
+\item POST /nin/update/:number  \par 編集フォームから送信されたデータを用いて，指定されたインデックス（:number）の配列要素を直接上書き更新する．更新完了後は一覧画面へリダイレクトする．
+\item GET /nin/delete/:number \par  指定されたインデックス（:number）の要素を配列から物理的に削除（splice）する．処理完了後は一覧画面へリダイレクトする．
+\end{itemize}
+
+
+
+
+
+
+\subsection{iPhoneシステム}
+
+\subsubsection{概要}
+本システムは，Appleの歴代iPhoneのデータを管理・閲覧するためのWebアプリケーションである． 
+ユーザーはWebブラウザを通じて，製品情報の一覧表示・詳細閲覧・新規登録・編集・削除を行うことができる． 開発およびデモ運用を想定し，データベースサーバーを使用せず，アプリケーションサーバーのメモリ上でデータを管理する構成となっている．
+
+\subsubsection{データ構造}
+本構造は，モバイル端末の基本スペックと市場リリース情報を管理するオブジェクト構造を持つ．id，name を識別子とし，市場投入に関わるdayやpriceを文字列で保持する．特徴的なのはsize項目であり，デバイスの物理的なディスプレイサイズをインチ単位のテキストデータとして定義している．
+複雑な階層構造を持たず，各世代の端末情報をフラットなオブジェクト配列として格納する，一覧性と拡張性に優れたシンプルなデータ定義を採用している．
+\begin{table}[H]\caption{iPhoneシステム データ構造}
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    キー名&型&説明\\
+    \hline
+    id&Number&通し番号\\
+    \hline
+    name&String&端末名\\
+    \hline
+    day&String&発売日\\
+    \hline
+    price&String&価格\\
+    \hline
+    size&String&サイズ\\
+    \hline
+  \end{tabular}
+  \label{kouzou3}
+\end{table}
+
+\subsubsection{iPhoneシステム HTTPメソッドとリソース名一覧}
+本システムでは，AppleのiPhone情報を閲覧する一般画面と，情報をメンテナンスするための管理画面を区別して定義している．
+登録，編集，更新といった各プロセスに対して専用のリソースパスを割り当てることで，ハードウェアデータの正確なCRUD 操作を実現している．
+
+\begin{table}[H]\caption{iPhoneシステム HTTPメソッドとリソース名一覧}
+  \centering
+  \resizebox{\textwidth}{!}{ 
+  \small
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    機能&メソッド&リソース名&説明\\
+    \hline
+    一覧表示&GET&/app&一覧表示画面を表示\\
+    \hline
+    新規作成画面表示&GET&/app/create&新規登録用の入力フォームを表示\\
+    \hline
+    詳細表示&GET&/app/:number&指定されたIDのデータの詳細画面を表示\\
+    \hline
+    削除&GET&/app/delete/:number&指定されたIDのデータを削除\\
+    \hline
+    新規登録処理&POST&/app&フォームから送信されたデータを受け取り，新規データを登録\\
+    \hline
+    編集画面表示&GET&/app/edit/:number&指定されたIDのデータを編集するためのフォームを表示\\
+    \hline
+    更新処理&POST&/app/update/:number&編集フォームから送信されたデータを受け取り，指定されたIDの情報を更新\\
+    \hline
+  \end{tabular}}
+  \label{kouzou4}
+\end{table}
+
+\subsubsection{遷移図}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{seni2.png}
+    \caption{iPhoneシステムの遷移図}
+    \label{seni2}
+\end{figure}
+
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize}
+\item GET /app  \par サーバーメモリ上のapple配列から全データを取得し，app.ejsに渡してレンダリングを行う
+\item GET /app/create  \par ユーザーが新しいハードウェア情報を入力するためのapp.htmlを返却する．
+\item POST /app  \par フォームから送信された入力値を受け取る．システム側で新たなidを自動生成し，入力値と合わせてオブジェクト化する．これをapple配列の末尾に追加（push）した後，一覧画面へリダイレクトする．
+\item GET /app/:number  \par URLパラメータ:numberを配列のインデックスとして使用し，特定の一件を抽出する．抽出したデータapp\_detail.ejsに渡して表示する．
+\item GET /app/edit/:number \par  指定されたインデックス（:number）のデータを配列から取得し，その値を初期値として埋め込んだ状態でapp\_edit.ejsを表示する．
+\item POST /app/update/:number  \par 編集フォームから送信されたデータを用いて，指定されたインデックス（:number）の配列要素を直接上書き更新する．更新完了後は一覧画面へリダイレクトする．
+\item GET /app/delete/:number \par  指定されたインデックス（:number）の要素を配列から物理的に削除（splice）する．処理完了後は一覧画面へリダイレクトする．
+\end{itemize}
+
+
+
+
+
+
+
+\subsection{ポケモンシステム}
+
+\subsubsection{概要}
+本システムは，ニンテンドーのポケモンのデータを管理・閲覧するためのWebアプリケーションである． 
+ユーザーはWebブラウザを通じて，製品情報の一覧表示・詳細閲覧・新規登録・編集・削除を行うことができる． 開発およびデモ運用を想定し，データベースサーバーを使用せず，アプリケーションサーバーのメモリ上でデータを管理する構成となっている．
+
+\subsubsection{データ構造}
+本構造は，ポケモンの生態データと個体情報を管理するオブジェクト構造を持つ．id，nameを基本キーとし，分類に関わるtypeやclass，regionを文字列で保持する．
+最大の特徴はcharacter項目であり，複雑な階層構造は持たず，複数の特性情報をカンマ区切りのテキストとして格納するシンプルかつ可読性の高いフラットなデータ定義を採用している．
+\begin{table}[H]\caption{ポケモンシステム データ構造}
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    キー名&型&説明\\
+    \hline
+    id&Number&通し番号\\
+    \hline
+    name&String&ポケモンの名称\\
+    \hline
+    type&String&タイプ\\
+    \hline
+    class&String&分類\\
+    \hline
+    character&String&特性\\
+    \hline
+    region&String&生息地\\
+    \hline
+  \end{tabular}
+  \label{kouzou5}
+\end{table}
+
+\subsubsection{ポケモンシステム HTTPメソッドとリソース名一覧}
+本システムでは，ニンテンドーのポケモン情報を閲覧する一般画面と，情報をメンテナンスするための管理画面を区別して定義している．
+登録，編集，更新といった各プロセスに対して専用のリソースパスを割り当てることで，ハードウェアデータの正確なCRUD 操作を実現している．
+
+\begin{table}[H]\caption{ポケモンシステム HTTPメソッドとリソース名一覧}
+  \centering
+  \resizebox{\textwidth}{!}{ 
+  \small
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    機能&メソッド&リソース名&説明\\
+    \hline
+    一覧表示&GET&/po&一覧表示画面を表示\\
+    \hline
+    新規作成画面表示&GET&/po/create&新規登録用の入力フォームを表示\\
+    \hline
+    詳細表示&GET&/po/:number&指定されたIDのデータの詳細画面を表示\\
+    \hline
+    削除&GET&/po/delete/:number&指定されたIDのデータを削除\\
+    \hline
+    新規登録処理&POST&/po&フォームから送信されたデータを受け取り，新規データを登録\\
+    \hline
+    編集画面表示&GET&/po/edit/:number&指定されたIDのデータを編集するためのフォームを表示\\
+    \hline
+    更新処理&POST&/po/update/:number&編集フォームから送信されたデータを受け取り，指定されたIDの情報を更新\\
+    \hline
+  \end{tabular}}
+  \label{kouzou3}
+\end{table}
+
+\subsubsection{遷移図}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,clip]{seni3.png}
+    \caption{ポケモンシステムの遷移図}
+    \label{seni6}
+\end{figure}
+
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize}
+\item GET /po  \par サーバーメモリ上のapple配列から全データを取得し，app.ejsに渡してレンダリングを行う
+\item GET /po/create  \par ユーザーが新しいハードウェア情報を入力するためのapp.htmlを返却する．
+\item POST /po  \par フォームから送信された入力値を受け取る．システム側で新たなidを自動生成し，入力値と合わせてオブジェクト化する．これをapple配列の末尾に追加（push）した後，一覧画面へリダイレクトする．
+\item GET /po/:number  \par URLパラメータ:numberを配列のインデックスとして使用し，特定の一件を抽出する．抽出したデータapp\_detail.ejsに渡して表示する．
+\item GET /po/edit/:number \par  指定されたインデックス（:number）のデータを配列から取得し，その値を初期値として埋め込んだ状態でapp\_edit.ejsを表示する．
+\item POST /po/update/:number  \par 編集フォームから送信されたデータを用いて，指定されたインデックス（:number）の配列要素を直接上書き更新する．更新完了後は一覧画面へリダイレクトする．
+\item GET /po/delete/:number \par  指定されたインデックス（:number）の要素を配列から物理的に削除（splice）する．処理完了後は一覧画面へリダイレクトする．
+\end{itemize}
+
+
+\section{管理者向け仕様書}
+\subsection{インストール方法}
+本プログラムを動作させるための環境構築手順を以下に記す．
+本手順ではパッケージ管理システムとして \textbf{Homebrew} を使用する．
+ターミナルを起動し，以下のコマンドを実行してHomebrewをインストールする．
+\begin{lstlisting}
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+\end{lstlisting}
+パスワードの入力が求められるので自身のMacOSのパスワードを入力し，プロンプトが表示されるまで待つ．次に以下の二つのコマンドを順にを実行する．
+\begin{lstlisting}
+    ( echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+\end{lstlisting}
+node.jsはバージョン更新が早いので，使用するバージョンを管理するツールとしてnodebrewをインストールする．
+以下の四つのコマンドを順に実行する．
+\begin{lstlisting}
+    brew install nodebrew
+    nodebrew setup
+    echo 'export PATH=$HOME/.nodebrew/current/bin:$PATH' >> ~/.zshrc
+    source ~/.zshrc
+\end{lstlisting}
+つぎにnode.jsの最新版をインストールする．以下の二つのコマンドを順に実行する．
+\begin{lstlisting}
+    nodebrew install stable
+    nodebrew ls
+\end{lstlisting}
+ここで最新バージョンの番号を確認し，以下のコマンドを最新バージョンに設定する．ここでは番号をv24.1.0と仮定する．
+以下の二つのコマンドを実行する．
+\begin{lstlisting}  
+    nodebrew use v24.3.0
+    npm install -g npm
+\end{lstlisting}
+
+\subsection{起動方法}
+本システムを起動する手順について説明する．
+まず初めに，ターミナルを起動し，本システムのプロジェクトディレクトリに移動する．
+次に，以下のコマンドを実行し本システムを起動する．
+\begin{lstlisting}
+    node repo.js
+\end{lstlisting}
+ターミナルに\texttt{Server is running on http://localhost:8080/repo}と表示されたら起動できている状態である．
+
+\subsection{終了方法}
+本システムを終了する手順について説明する．
+ターミナルで本システムが起動している状態で，\texttt{Ctrl + C}キーを同時に押すことで終了できる．
+
+\subsection{起動できない場合}
+本システムが起動しない場合は，以下の手順で確認と再試行を行う．
+まず，ターミナルで適切なディレクトリに移動しているか，およびシステムが使用するポート番号が他のアプリケーションと競合していないかを確認し，再度起動を試みる．
+次に，実行環境のバージョンを確認する．Node.js や npm が古いことが原因で不具合が生じる場合があるため，これらを最新バージョンにアップデートした上で，改めて起動を試行する．
+以上の手順でも解決しない場合は，GitHubからリポジトリを再度クローンし，正規の手順に従ってインストールと起動を一からやり直す．
+
+\subsection{分かっている不具合}
+本システムには，更新データが永続化されないという課題がある．具体的には，情報の追加や編集を完了した状態であっても，システムを再起動するとそれらの更新情報が失われ，操作前の状態に戻ってしまう問題が報告されている．
+
+
+
+end{document}
+
