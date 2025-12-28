@@ -149,11 +149,6 @@ app.get("/nin_add", (req, res) => {
   res.redirect('/public/nin_add.html');
 });
 
-// ポート8080で待機（エラーが出るなら3000などに変更）
-app.listen(8080, () => {
-  console.log("Server is running on http://localhost:8080/nin");
-});
-
 
 
 let apple = [
@@ -269,11 +264,6 @@ app.post("/app/update/:number", (req, res) => {
     apple[index].size = req.body.size;
   }
   res.redirect('/app');
-});
-
-// ポート8080で待機（エラーが出るなら3000などに変更）
-app.listen(8081, () => {
-  console.log("Server is running on http://localhost:8081/app");
 });
 
 
@@ -1463,6 +1453,6 @@ app.post("/po/update/:number", (req, res) => {
 
 
 // ポート8080で待機（エラーが出るなら3000などに変更）
-app.listen(8082, () => {
-  console.log("Server is running on http://localhost:8082/po");
+app.listen(8080, () => {
+  console.log("Server is running on http://localhost:8080/repo");
 });
