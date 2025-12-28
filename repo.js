@@ -141,13 +141,7 @@ app.post("/nin/update/:number", (req, res) => {
   res.redirect('/nin');
 });
 
-app.get("/nin_add", (req, res) => {
-  let id = req.query.id;
-  let name = req.query.name;
-  let newdata = { id: id, name: name };
-  station.push( newdata );
-  res.redirect('/public/nin_add.html');
-});
+
 
 
 
